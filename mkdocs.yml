@@ -1,0 +1,134 @@
+site_name: ASP.NET 7 Web API Workshop
+site_url: 
+site_author: Chris Woodruff
+site_description: >-
+  ASP.NET 7 Web API Workshop
+
+# Repository
+repo_name: cwoodruff/aspnet-7-web-api-workshop
+repo_url: https://github.com/cwoodruff/aspnet-7-web-api-workshop
+edit_uri: ""
+
+copyright: "This workshop is licensed under the <a href='https://github.com/cwoodruff/aspnet-7-web-api-workshop/blob/main/LICENSE'>MIT license</a>"
+
+# Page tree
+nav:
+    - Home: index.md
+    - About: about.md
+    - Getting Started:
+        - Introduction: introduction.md
+        - Required Technology: required-tech.md
+        - Installing ASP.NET 7: installing-aspnet-7.md
+        - Installing SQL Server: installing-mssql.md
+        - Setting up Azure SQL: setting-up-azure-sql.md
+        - Installing Postman: installing-postman.md
+    - Standing up a Web API:
+        - What is a Web API?: Standing Up an ASP.NET Core Web API/what-is-a-web-api.md
+        - What is REST?: Standing Up an ASP.NET Core Web API/what-is-rest.md
+        - Your first ASP.NET Core Web API: Standing Up an ASP.NET Core Web API/your-first-aspnet-core-web-api.md
+        - Designing the NTier API: Standing Up an ASP.NET Core Web API/designing-ntier-api.md
+        - Developing Data Access for your Web API: Standing Up an ASP.NET Core Web API/ntier-data-access.md
+        - Developing the API Endpoints: Standing Up an ASP.NET Core Web API/ntier-api-endpoints.md
+        - Developing the API Business Rules: Standing Up an ASP.NET Core Web API/api-business-rules.md
+        - Caching Data in your API: Standing Up an ASP.NET Core Web API/caching-data.md
+        - Identity in your Web API: Standing Up an ASP.NET Core Web API/identity.md
+        - Versioning your Web API: Standing Up an ASP.NET Core Web API/versioning.md
+        - Documenting your API with OpenAPI: Standing Up an ASP.NET Core Web API/documenting-with-openapi.md
+        - Formatting Reponse Data in your API: Standing Up an ASP.NET Core Web API/formatting-response-data.md
+        - Using the PATCH HTTP Request in your API: Standing Up an ASP.NET Core Web API/using-patch-request.md
+        - Adding Paging to your API Queries: Standing Up an ASP.NET Core Web API/adding-paging-to-your-api-queries.md
+        - Using Hypermedia in your API Responses: Standing Up an ASP.NET Core Web API/using-hypermedia-in-your-api-responses.md
+        - Rate Limiting your API: Standing Up an ASP.NET Core Web API/rate-limiting-your-api.md
+    - Testing Your API:
+        - Creating and using Unit Testing for your API: Testing Your AP/unit-testing.md
+        - Creating and using Integrating Testing for your API: Testing Your AP/integration-testing.md
+    - Consuming ASP.NET Web API:
+        - Consuming ASP.NET Web API in .NET: Consuming ASP.NET Web API/consuming-web-api-in-dotnet.md
+        - Consuming ASP.NET Web API with OpenAPI Document: Consuming ASP.NET Web API/consuming-web-api-with-openapi.md
+        - Consuming ASP.NET Web API in Javascript: Consuming ASP.NET Web API/consuming-web-api-in-javascript.md
+    
+plugins:
+    - search
+    - minify:
+        minify_html: true
+  
+theme:
+  name: null
+  
+  custom_dir: cinder
+  colorscheme: github
+  highlightjs: true
+
+  # 404 page
+  static_templates:
+    - 404.html
+
+  # Necessary for search to work properly
+  include_search_page: false
+  search_index_only: true
+
+  # Default values, taken from mkdocs_theme.yml
+  language: en
+  font:
+    text: Roboto
+    code: Roboto Mono
+  icon:
+    logo: logo
+  features:
+    - navigation.sections
+    - navigation.tabs
+  logo: https://github.com/cwoodruff/aspnet-7-web-api-workshop/blob/main/rest-api.png?raw=true
+  favicon: https://github.com/cwoodruff/aspnet-7-web-api-workshop/blob/main/rest-api.ico
+
+    
+# Customization
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/cwoodruff
+    - icon: fontawesome/brands/twitter
+      link: https://twitter.com/cwoodruff
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/chriswoodruff/
+    - icon: fontawesome/brands/medium
+      link: https://medium.com/@chriswoodywoodruff
+      
+ # Extensions
+markdown_extensions:
+  - admonition
+  - abbr
+  - attr_list
+  - def_list
+  - footnotes
+  - meta
+  - md_in_html
+  - toc:
+      permalink: true
+  - pymdownx.arithmatex:
+      generic: true
+  - pymdownx.betterem:
+      smart_enable: all
+  - pymdownx.caret
+  - pymdownx.critic
+  - pymdownx.details
+  - pymdownx.emoji:
+      emoji_index: !!python/name:materialx.emoji.twemoji
+      emoji_generator: !!python/name:materialx.emoji.to_svg
+  - pymdownx.highlight
+  - pymdownx.inlinehilite
+  - pymdownx.keys
+  - pymdownx.magiclink:
+      repo_url_shorthand: true
+      user: squidfunk
+      repo: mkdocs-material
+  - pymdownx.mark
+  - pymdownx.smartsymbols
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed
+  - pymdownx.tasklist:
+      custom_checkbox: true
+  - pymdownx.tilde
