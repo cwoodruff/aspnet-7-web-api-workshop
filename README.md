@@ -1,1 +1,1 @@
-# aspnet-6-web-api-workshop
+# ASP.NET 7 Web API Workshop
