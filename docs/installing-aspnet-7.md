@@ -13,7 +13,7 @@ First, download the [.NET SDK](https://dotnet.microsoft.com/download/dotnet) on 
 
 Next install the .NET SDK on your computer.
 
-Next, open a terminal such as **PowerShell**, **Command Prompt**, or **bash**. Enter the following `dotnet` commands to verify that .NET 6 has been installed:
+Next, open a terminal such as **PowerShell**, **Command Prompt**, or **bash**. Enter the following `dotnet` commands to verify that .NET 7 has been installed:
 
 ```dotnetcli
 dotnet --list-sdks
