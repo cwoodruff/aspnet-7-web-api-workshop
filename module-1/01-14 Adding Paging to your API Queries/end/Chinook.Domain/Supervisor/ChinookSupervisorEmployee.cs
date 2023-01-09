@@ -1,5 +1,4 @@
 using Chinook.Domain.ApiModels;
-using Chinook.Domain.Entities;
 using Chinook.Domain.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
@@ -8,9 +7,9 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<IEnumerable<EmployeeApiModel>> GetAllEmployee()
+    public async Task<PagedList<EmployeeApiModel>> GetAllEmployee(int pageNumber, int pageSize)
     {
-        List<Employee> employees = await _employeeRepository.GetAll();
+        var employees = await _employeeRepository.GetAll(pageNumber, pageSize);
         var employeeApiModels = employees.ConvertAll();
 
         foreach (var employee in employeeApiModels)
@@ -21,8 +20,8 @@ public partial class ChinookSupervisor
             ;
             _cache.Set(string.Concat("Employee-", employee.Id), employee, (TimeSpan)cacheEntryOptions);
         }
-
-        return employeeApiModels;
+        var newPagedList = new PagedList<EmployeeApiModel>(employeeApiModels.ToList(), employees.TotalCount, employees.CurrentPage, employees.PageSize);
+        return newPagedList;
     }
 
     public async Task<EmployeeApiModel?> GetEmployeeById(int id)

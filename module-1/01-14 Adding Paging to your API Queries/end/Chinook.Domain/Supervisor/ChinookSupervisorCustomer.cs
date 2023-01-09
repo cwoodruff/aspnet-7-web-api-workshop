@@ -1,5 +1,4 @@
 using Chinook.Domain.ApiModels;
-using Chinook.Domain.Entities;
 using Chinook.Domain.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
@@ -8,9 +7,9 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<IEnumerable<CustomerApiModel>> GetAllCustomer()
+    public async Task<PagedList<CustomerApiModel>> GetAllCustomer(int pageNumber, int pageSize)
     {
-        List<Customer> customers = await _customerRepository.GetAll();
+        var customers = await _customerRepository.GetAll(pageNumber, pageSize);
         var customerApiModels = customers.ConvertAll();
 
         foreach (var customer in customerApiModels)
@@ -21,8 +20,8 @@ public partial class ChinookSupervisor
             ;
             _cache.Set(string.Concat("Customer-", customer.Id), customer, (TimeSpan)cacheEntryOptions);
         }
-
-        return customerApiModels;
+        var newPagedList = new PagedList<CustomerApiModel>(customerApiModels.ToList(), customers.TotalCount, customers.CurrentPage, customers.PageSize);
+        return newPagedList;
     }
 
     public async Task<CustomerApiModel> GetCustomerById(int id)
@@ -38,7 +37,7 @@ public partial class ChinookSupervisor
             var customer = await _customerRepository.GetById(id);
             if (customer == null) return null!;
             var customerApiModel = customer.Convert();
-            customerApiModel.Invoices = (await GetInvoiceByCustomerId(customerApiModel.Id)).ToList();
+            //customerApiModel.Invoices = (await GetInvoiceByCustomerId(customerApiModel.Id)).ToList();
             customerApiModel.SupportRep =
                 await GetEmployeeById(customerApiModel.SupportRepId);
             if (customerApiModel.SupportRep != null)
@@ -56,9 +55,10 @@ public partial class ChinookSupervisor
         }
     }
 
-    public async Task<IEnumerable<CustomerApiModel>> GetCustomerBySupportRepId(int id)
+    public async Task<PagedList<CustomerApiModel>> GetCustomerBySupportRepId(int id, int pageNumber, int pageSize)
     {
-        var customers = await _customerRepository.GetBySupportRepId(id);
+        var customers = await _customerRepository.GetBySupportRepId(id, pageNumber, pageSize);
+        var customerApiModels = customers.ConvertAll();
 
         foreach (var customer in customers)
         {
@@ -68,8 +68,8 @@ public partial class ChinookSupervisor
             ;
             _cache.Set(string.Concat("Customer-", customer.Id), customer, (TimeSpan)cacheEntryOptions);
         }
-
-        return customers.ConvertAll();
+        var newPagedList = new PagedList<CustomerApiModel>(customerApiModels.ToList(), customers.TotalCount, customers.CurrentPage, customers.PageSize);
+        return newPagedList;
     }
 
     public async Task<CustomerApiModel> AddCustomer(CustomerApiModel newCustomerApiModel)

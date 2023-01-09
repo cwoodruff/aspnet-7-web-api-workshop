@@ -1,5 +1,7 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Chinook.Domain.ApiModels;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
@@ -10,6 +12,7 @@ namespace Chinook.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [EnableCors("CorsPolicy")]
+[ResponseCache(Duration = 604800)]
 [ApiVersion("1.0")]
 public class MediaTypeController : ControllerBase
 {
@@ -24,20 +27,28 @@ public class MediaTypeController : ControllerBase
 
     [HttpGet]
     [Produces("application/json")]
-    public async Task<ActionResult<List<MediaTypeApiModel>>> Get()
+    public async Task<ActionResult<PagedList<MediaTypeApiModel>>> Get([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var mediaTypes = await _chinookSupervisor.GetAllMediaType();
+            var mediaTypes = await _chinookSupervisor.GetAllMediaType(pageNumber, pageSize);
 
             if (mediaTypes.Any())
             {
+                var metadata = new
+                {
+                    mediaTypes.TotalCount,
+                    mediaTypes.PageSize,
+                    mediaTypes.CurrentPage,
+                    mediaTypes.TotalPages,
+                    mediaTypes.HasNext,
+                    mediaTypes.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(mediaTypes);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No MediaType Could Be Found");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No MediaType Could Be Found");
         }
         catch (Exception ex)
         {
@@ -59,10 +70,8 @@ public class MediaTypeController : ControllerBase
             {
                 return Ok(mediaType);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "MediaType Not Found");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "MediaType Not Found");
         }
         catch (Exception ex)
         {
@@ -83,10 +92,8 @@ public class MediaTypeController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given MediaType is null");
             }
-            else
-            {
-                return Ok(await _chinookSupervisor.AddMediaType(input));
-            }
+
+            return Ok(await _chinookSupervisor.AddMediaType(input));
         }
         catch (ValidationException ex)
         {
@@ -113,10 +120,8 @@ public class MediaTypeController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given MediaType is null");
             }
-            else
-            {
-                return Ok(await _chinookSupervisor.UpdateMediaType(input));
-            }
+
+            return Ok(await _chinookSupervisor.UpdateMediaType(input));
         }
         catch (ValidationException ex)
         {

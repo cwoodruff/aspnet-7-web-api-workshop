@@ -1,5 +1,7 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Chinook.Domain.ApiModels;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
@@ -24,20 +26,28 @@ public class EmployeeController : ControllerBase
 
     [HttpGet]
     [Produces("application/json")]
-    public async Task<ActionResult<List<EmployeeApiModel>>> Get()
+    public async Task<ActionResult<PagedList<EmployeeApiModel>>> Get([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var employees = await _chinookSupervisor.GetAllEmployee();
+            var employees = await _chinookSupervisor.GetAllEmployee(pageNumber, pageSize);
 
             if (employees.Any())
             {
+                var metadata = new
+                {
+                    employees.TotalCount,
+                    employees.PageSize,
+                    employees.CurrentPage,
+                    employees.TotalPages,
+                    employees.HasNext,
+                    employees.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(employees);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Employees Could Be Found");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Employees Could Be Found");
         }
         catch (Exception ex)
         {
@@ -59,10 +69,8 @@ public class EmployeeController : ControllerBase
             {
                 return Ok(employee);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "Employee Not Found");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "Employee Not Found");
         }
         catch (Exception ex)
         {
@@ -83,10 +91,8 @@ public class EmployeeController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given Employee is null");
             }
-            else
-            {
-                return Ok(await _chinookSupervisor.AddEmployee(input));
-            }
+
+            return Ok(await _chinookSupervisor.AddEmployee(input));
         }
         catch (ValidationException ex)
         {
@@ -113,10 +119,8 @@ public class EmployeeController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given Employee is null");
             }
-            else
-            {
-                return Ok(await _chinookSupervisor.UpdateEmployee(input));
-            }
+
+            return Ok(await _chinookSupervisor.UpdateEmployee(input));
         }
         catch (ValidationException ex)
         {
@@ -159,11 +163,9 @@ public class EmployeeController : ControllerBase
             {
                 return Ok(employee);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound,
-                    "No Reporting Employees Could Be Found for the Employee");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound,
+                "No Reporting Employees Could Be Found for the Employee");
         }
         catch (Exception ex)
         {
@@ -175,7 +177,7 @@ public class EmployeeController : ControllerBase
 
     [HttpGet("directreports/{id}")]
     [Produces("application/json")]
-    public async Task<ActionResult<List<EmployeeApiModel>>> GetDirectReports(int id)
+    public async Task<ActionResult<PagedList<EmployeeApiModel>>> GetDirectReports(int id)
     {
         try
         {
@@ -185,10 +187,8 @@ public class EmployeeController : ControllerBase
             {
                 return Ok(employees);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Employees Could Be Found");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Employees Could Be Found");
         }
         catch (Exception ex)
         {

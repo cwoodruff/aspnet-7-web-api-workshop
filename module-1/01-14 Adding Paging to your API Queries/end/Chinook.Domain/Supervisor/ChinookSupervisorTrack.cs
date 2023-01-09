@@ -3,15 +3,14 @@ using FluentValidation;
 using Microsoft.Extensions.Caching.Distributed;
 using System.Text.Json;
 using Chinook.Domain.ApiModels;
-using Chinook.Domain.Entities;
 
 namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<IEnumerable<TrackApiModel>> GetAllTrack()
+    public async Task<PagedList<TrackApiModel>> GetAllTrack(int pageNumber, int pageSize)
     {
-        List<Track> tracks = await _trackRepository.GetAll();
+        var tracks = await _trackRepository.GetAll(pageNumber, pageSize);
         var trackApiModels = tracks.ConvertAll();
 
         foreach (var track in trackApiModels)
@@ -23,8 +22,8 @@ public partial class ChinookSupervisor
             await _distributedCache.SetStringAsync($"Track-{track.Id}", JsonSerializer.Serialize(track),
                 cacheEntryOptions);
         }
-
-        return trackApiModels;
+        var newPagedList = new PagedList<TrackApiModel>(trackApiModels.ToList(), tracks.TotalCount, tracks.CurrentPage, tracks.PageSize);
+        return newPagedList;
     }
 
     public async Task<TrackApiModel?> GetTrackById(int id)
@@ -57,33 +56,6 @@ public partial class ChinookSupervisor
 
             return trackApiModel;
         }
-    }
-
-    public async Task<IEnumerable<TrackApiModel>?> GetTrackByAlbumId(int id)
-    {
-        var tracks = await _trackRepository.GetByAlbumId(id);
-        if (tracks == null)
-            return null;
-        else
-            return tracks.ConvertAll();
-    }
-
-    public async Task<IEnumerable<TrackApiModel>> GetTrackByGenreId(int id)
-    {
-        var tracks = await _trackRepository.GetByGenreId(id);
-        return tracks.ConvertAll();
-    }
-
-    public async Task<IEnumerable<TrackApiModel>> GetTrackByMediaTypeId(int id)
-    {
-        var tracks = await _trackRepository.GetByMediaTypeId(id);
-        return tracks.ConvertAll();
-    }
-
-    public async Task<IEnumerable<TrackApiModel>> GetTrackByPlaylistId(int id)
-    {
-        var tracks = await _trackRepository.GetByPlaylistId(id);
-        return tracks.ConvertAll();
     }
 
     public async Task<TrackApiModel> AddTrack(TrackApiModel newTrackApiModel)
@@ -119,16 +91,52 @@ public partial class ChinookSupervisor
 
     public Task<bool> DeleteTrack(int id)
         => _trackRepository.Delete(id);
-
-    public async Task<IEnumerable<TrackApiModel>> GetTrackByArtistId(int id)
+    
+    public async Task<PagedList<TrackApiModel>?> GetTrackByAlbumId(int id, int pageNumber, int pageSize)
     {
-        var tracks = await _trackRepository.GetByArtistId(id);
-        return tracks.ConvertAll();
+        var tracks = await _trackRepository.GetByAlbumId(id, pageNumber, pageSize);
+        var trackApiModels = tracks.ConvertAll();
+        var newPagedList = new PagedList<TrackApiModel>(trackApiModels.ToList(), tracks.TotalCount, tracks.CurrentPage, tracks.PageSize);
+        return newPagedList;
     }
 
-    public async Task<IEnumerable<TrackApiModel>> GetTrackByInvoiceId(int id)
+    public async Task<PagedList<TrackApiModel>> GetTrackByGenreId(int id, int pageNumber, int pageSize)
     {
-        var tracks = await _trackRepository.GetByInvoiceId(id);
-        return tracks.ConvertAll();
+        var tracks = await _trackRepository.GetByGenreId(id, pageNumber, pageSize);
+        var trackApiModels = tracks.ConvertAll();
+        var newPagedList = new PagedList<TrackApiModel>(trackApiModels.ToList(), tracks.TotalCount, tracks.CurrentPage, tracks.PageSize);
+        return newPagedList;
+    }
+
+    public async Task<PagedList<TrackApiModel>> GetTrackByMediaTypeId(int id, int pageNumber, int pageSize)
+    {
+        var tracks = await _trackRepository.GetByMediaTypeId(id, pageNumber, pageSize);
+        var trackApiModels = tracks.ConvertAll();
+        var newPagedList = new PagedList<TrackApiModel>(trackApiModels.ToList(), tracks.TotalCount, tracks.CurrentPage, tracks.PageSize);
+        return newPagedList;
+    }
+
+    public async Task<PagedList<TrackApiModel>> GetTrackByPlaylistId(int id, int pageNumber, int pageSize)
+    {
+        var tracks = await _trackRepository.GetByPlaylistId(id, pageNumber, pageSize);
+        var trackApiModels = tracks.ConvertAll();
+        var newPagedList = new PagedList<TrackApiModel>(trackApiModels.ToList(), tracks.TotalCount, tracks.CurrentPage, tracks.PageSize);
+        return newPagedList;
+    }
+
+    public async Task<PagedList<TrackApiModel>> GetTrackByArtistId(int id, int pageNumber, int pageSize)
+    {
+        var tracks = await _trackRepository.GetByArtistId(id, pageNumber, pageSize);
+        var trackApiModels = tracks.ConvertAll();
+        var newPagedList = new PagedList<TrackApiModel>(trackApiModels.ToList(), tracks.TotalCount, tracks.CurrentPage, tracks.PageSize);
+        return newPagedList;
+    }
+
+    public async Task<PagedList<TrackApiModel>> GetTrackByInvoiceId(int id, int pageNumber, int pageSize)
+    {
+        var tracks = await _trackRepository.GetByInvoiceId(id, pageNumber, pageSize);
+        var trackApiModels = tracks.ConvertAll();
+        var newPagedList = new PagedList<TrackApiModel>(trackApiModels.ToList(), tracks.TotalCount, tracks.CurrentPage, tracks.PageSize);
+        return newPagedList;
     }
 }

@@ -1,5 +1,4 @@
 using Chinook.Domain.ApiModels;
-using Chinook.Domain.Entities;
 using Chinook.Domain.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
@@ -8,9 +7,9 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<IEnumerable<MediaTypeApiModel>> GetAllMediaType()
+    public async Task<PagedList<MediaTypeApiModel>> GetAllMediaType(int pageNumber, int pageSize)
     {
-        List<MediaType> mediaTypes = await _mediaTypeRepository.GetAll();
+        var mediaTypes = await _mediaTypeRepository.GetAll(pageNumber, pageSize);
         var mediaTypeApiModels = mediaTypes.ConvertAll();
 
         foreach (var mediaType in mediaTypeApiModels)
@@ -21,8 +20,8 @@ public partial class ChinookSupervisor
             ;
             _cache.Set(string.Concat("MediaType-", mediaType.Id), mediaType, (TimeSpan)cacheEntryOptions);
         }
-
-        return mediaTypeApiModels;
+        var newPagedList = new PagedList<MediaTypeApiModel>(mediaTypeApiModels.ToList(), mediaTypes.TotalCount, mediaTypes.CurrentPage, mediaTypes.PageSize);
+        return newPagedList;
     }
 
     public async Task<MediaTypeApiModel?> GetMediaTypeById(int id)
@@ -38,7 +37,7 @@ public partial class ChinookSupervisor
             var mediaType = await _mediaTypeRepository.GetById(id);
             if (mediaType == null) return null;
             var mediaTypeApiModel = mediaType.Convert();
-            mediaTypeApiModel.Tracks = (await GetTrackByMediaTypeId(mediaTypeApiModel.Id)).ToList();
+            //mediaTypeApiModel.Tracks = (await GetTrackByMediaTypeId(mediaTypeApiModel.Id)).ToList();
 
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))

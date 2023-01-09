@@ -1,5 +1,7 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Chinook.Domain.ApiModels;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
@@ -10,6 +12,7 @@ namespace Chinook.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [EnableCors("CorsPolicy")]
+[ResponseCache(Duration = 604800)]
 [ApiVersion("1.0")]
 public class GenreController : ControllerBase
 {
@@ -24,14 +27,24 @@ public class GenreController : ControllerBase
 
     [HttpGet]
     [Produces("application/json")]
-    public async Task<ActionResult<List<GenreApiModel>>> Get()
+    public async Task<ActionResult<PagedList<GenreApiModel>>> Get([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var genres = await _chinookSupervisor.GetAllGenre();
+            var genres = await _chinookSupervisor.GetAllGenre(pageNumber, pageSize);
 
             if (genres.Any())
             {
+                var metadata = new
+                {
+                    genres.TotalCount,
+                    genres.PageSize,
+                    genres.CurrentPage,
+                    genres.TotalPages,
+                    genres.HasNext,
+                    genres.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(genres);
             }
             else

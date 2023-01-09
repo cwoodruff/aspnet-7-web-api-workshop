@@ -1,5 +1,7 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Chinook.Domain.ApiModels;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
@@ -24,20 +26,28 @@ public class CustomerController : ControllerBase
 
     [HttpGet]
     [Produces("application/json")]
-    public async Task<ActionResult<List<CustomerApiModel>>> Get()
+    public async Task<ActionResult<PagedList<CustomerApiModel>>> Get([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var customers = await _chinookSupervisor.GetAllCustomer();
+            var customers = await _chinookSupervisor.GetAllCustomer(pageNumber, pageSize);
 
             if (customers.Any())
             {
+                var metadata = new
+                {
+                    customers.TotalCount,
+                    customers.PageSize,
+                    customers.CurrentPage,
+                    customers.TotalPages,
+                    customers.HasNext,
+                    customers.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(customers);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Customers Could Be Found");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Customers Could Be Found");
         }
         catch (Exception ex)
         {
@@ -59,10 +69,8 @@ public class CustomerController : ControllerBase
             {
                 return Ok(customer);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "Customer Not Found");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "Customer Not Found");
         }
         catch (Exception ex)
         {
@@ -83,10 +91,8 @@ public class CustomerController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given Customer is null");
             }
-            else
-            {
-                return Ok(await _chinookSupervisor.AddCustomer(input));
-            }
+
+            return Ok(await _chinookSupervisor.AddCustomer(input));
         }
         catch (ValidationException ex)
         {
@@ -113,10 +119,8 @@ public class CustomerController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given Customer is null");
             }
-            else
-            {
-                return Ok(await _chinookSupervisor.UpdateCustomer(input));
-            }
+
+            return Ok(await _chinookSupervisor.UpdateCustomer(input));
         }
         catch (ValidationException ex)
         {
@@ -159,10 +163,8 @@ public class CustomerController : ControllerBase
             {
                 return Ok(employee);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Support Rep Could Be Found");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Support Rep Could Be Found");
         }
         catch (Exception ex)
         {

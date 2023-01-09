@@ -1,5 +1,7 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Chinook.Domain.ApiModels;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
@@ -24,20 +26,28 @@ public class InvoiceController : ControllerBase
 
     [HttpGet]
     [Produces("application/json")]
-    public async Task<ActionResult<List<InvoiceApiModel>>> Get()
+    public async Task<ActionResult<PagedList<InvoiceApiModel>>> Get([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var invoices = await _chinookSupervisor.GetAllInvoice();
+            var invoices = await _chinookSupervisor.GetAllInvoice(pageNumber, pageSize);
 
             if (invoices.Any())
             {
+                var metadata = new
+                {
+                    invoices.TotalCount,
+                    invoices.PageSize,
+                    invoices.CurrentPage,
+                    invoices.TotalPages,
+                    invoices.HasNext,
+                    invoices.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(invoices);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Invoices Could Be Found");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Invoices Could Be Found");
         }
         catch (Exception ex)
         {
@@ -59,10 +69,8 @@ public class InvoiceController : ControllerBase
             {
                 return Ok(invoice);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "Invoice Not Found");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "Invoice Not Found");
         }
         catch (Exception ex)
         {
@@ -83,10 +91,8 @@ public class InvoiceController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given Invoice is null");
             }
-            else
-            {
-                return Ok(await _chinookSupervisor.AddInvoice(input));
-            }
+
+            return Ok(await _chinookSupervisor.AddInvoice(input));
         }
         catch (ValidationException ex)
         {
@@ -113,10 +119,8 @@ public class InvoiceController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given Invoice is null");
             }
-            else
-            {
-                return Ok(await _chinookSupervisor.UpdateInvoice(input));
-            }
+
+            return Ok(await _chinookSupervisor.UpdateInvoice(input));
         }
         catch (ValidationException ex)
         {
@@ -149,20 +153,28 @@ public class InvoiceController : ControllerBase
 
     [HttpGet("employee/{id}")]
     [Produces("application/json")]
-    public async Task<ActionResult<List<InvoiceApiModel>>> GetByEmployeeId(int id)
+    public async Task<ActionResult<PagedList<InvoiceApiModel>>> GetByEmployeeId(int id, [FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var invoices = await _chinookSupervisor.GetInvoiceByEmployeeId(id);
+            var invoices = await _chinookSupervisor.GetInvoiceByEmployeeId(id, pageNumber, pageSize);
 
             if (invoices.Any())
             {
+                var metadata = new
+                {
+                    invoices.TotalCount,
+                    invoices.PageSize,
+                    invoices.CurrentPage,
+                    invoices.TotalPages,
+                    invoices.HasNext,
+                    invoices.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(invoices);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Invoices Could Be Found for the Employee");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Invoices Could Be Found for the Employee");
         }
         catch (Exception ex)
         {
@@ -174,20 +186,28 @@ public class InvoiceController : ControllerBase
 
     [HttpGet("customer/{id}")]
     [Produces("application/json")]
-    public async Task<ActionResult<List<InvoiceApiModel>>> GetByCustomerId(int id)
+    public async Task<ActionResult<PagedList<InvoiceApiModel>>> GetByCustomerId(int id, [FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var invoices = await _chinookSupervisor.GetInvoiceByCustomerId(id);
+            var invoices = await _chinookSupervisor.GetInvoiceByCustomerId(id, pageNumber, pageSize);
 
             if (invoices.Any())
             {
+                var metadata = new
+                {
+                    invoices.TotalCount,
+                    invoices.PageSize,
+                    invoices.CurrentPage,
+                    invoices.TotalPages,
+                    invoices.HasNext,
+                    invoices.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(invoices);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Invoices Could Be Found for the Customer");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Invoices Could Be Found for the Customer");
         }
         catch (Exception ex)
         {

@@ -1,10 +1,12 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Chinook.Domain.ApiModels;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.EntityFrameworkCore;
 
 namespace Chinook.API.Controllers;
@@ -26,20 +28,28 @@ public class TrackController : ControllerBase
 
     [HttpGet]
     [Produces("application/json")]
-    public async Task<ActionResult<List<TrackApiModel>>> Get()
+    public async Task<ActionResult<PagedList<TrackApiModel>>> Get([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var tracks = await _chinookSupervisor.GetAllTrack();
+            var tracks = await _chinookSupervisor.GetAllTrack(pageNumber, pageSize);
 
             if (tracks.Any())
             {
+                var metadata = new
+                {
+                    tracks.TotalCount,
+                    tracks.PageSize,
+                    tracks.CurrentPage,
+                    tracks.TotalPages,
+                    tracks.HasNext,
+                    tracks.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(tracks);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Tracks Could Be Found");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Tracks Could Be Found");
         }
         catch (Exception ex)
         {
@@ -61,10 +71,8 @@ public class TrackController : ControllerBase
             {
                 return Ok(track);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "Track Not Found");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "Track Not Found");
         }
         catch (Exception ex)
         {
@@ -85,10 +93,8 @@ public class TrackController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given Track is null");
             }
-            else
-            {
-                return Ok(await _chinookSupervisor.AddTrack(input));
-            }
+
+            return Ok(await _chinookSupervisor.AddTrack(input));
         }
         catch (ValidationException ex)
         {
@@ -113,10 +119,8 @@ public class TrackController : ControllerBase
             {
                 return StatusCode((int)HttpStatusCode.BadRequest, "Given Track is null");
             }
-            else
-            {
-                return Ok(await _chinookSupervisor.UpdateTrack(input));
-            }
+
+            return Ok(await _chinookSupervisor.UpdateTrack(input));
         }
         catch (ValidationException ex)
         {
@@ -149,20 +153,28 @@ public class TrackController : ControllerBase
 
     [HttpGet("artist/{id}")]
     [Produces("application/json")]
-    public async Task<ActionResult<List<TrackApiModel>>> GetByArtistId(int id)
+    public async Task<ActionResult<PagedList<TrackApiModel>>> GetByArtistId(int id, [FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var tracks = await _chinookSupervisor.GetTrackByArtistId(id);
+            var tracks = await _chinookSupervisor.GetTrackByArtistId(id, pageNumber, pageSize);
 
             if (tracks.Any())
             {
+                var metadata = new
+                {
+                    tracks.TotalCount,
+                    tracks.PageSize,
+                    tracks.CurrentPage,
+                    tracks.TotalPages,
+                    tracks.HasNext,
+                    tracks.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(tracks);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Tracks Could Be Found for the Artist");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Tracks Could Be Found for the Artist");
         }
         catch (Exception ex)
         {
@@ -174,20 +186,28 @@ public class TrackController : ControllerBase
 
     [HttpGet("invoice/{id}")]
     [Produces("application/json")]
-    public async Task<ActionResult<List<TrackApiModel>>> GetByInvoiceId(int id)
+    public async Task<ActionResult<PagedList<TrackApiModel>>> GetByInvoiceId(int id, [FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var tracks = await _chinookSupervisor.GetTrackByInvoiceId(id);
+            var tracks = await _chinookSupervisor.GetTrackByInvoiceId(id, pageNumber, pageSize);
 
             if (tracks.Any())
             {
+                var metadata = new
+                {
+                    tracks.TotalCount,
+                    tracks.PageSize,
+                    tracks.CurrentPage,
+                    tracks.TotalPages,
+                    tracks.HasNext,
+                    tracks.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(tracks);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Tracks Could Be Found for the Invoice");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Tracks Could Be Found for the Invoice");
         }
         catch (Exception ex)
         {
@@ -199,20 +219,28 @@ public class TrackController : ControllerBase
 
     [HttpGet("album/{id}")]
     [Produces("application/json")]
-    public async Task<ActionResult<List<TrackApiModel>>> GetByAlbumId(int id)
+    public async Task<ActionResult<PagedList<TrackApiModel>>> GetByAlbumId(int id, [FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var tracks = await _chinookSupervisor.GetTrackByAlbumId(id);
+            var tracks = await _chinookSupervisor.GetTrackByAlbumId(id, pageNumber, pageSize);
 
             if (tracks.Any())
             {
+                var metadata = new
+                {
+                    tracks.TotalCount,
+                    tracks.PageSize,
+                    tracks.CurrentPage,
+                    tracks.TotalPages,
+                    tracks.HasNext,
+                    tracks.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(tracks);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Tracks Could Be Found for the Album");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Tracks Could Be Found for the Album");
         }
         catch (Exception ex)
         {
@@ -224,20 +252,28 @@ public class TrackController : ControllerBase
 
     [HttpGet("mediatype/{id}")]
     [Produces("application/json")]
-    public async Task<ActionResult<List<TrackApiModel>>> GetByMediaTypeId(int id)
+    public async Task<ActionResult<PagedList<TrackApiModel>>> GetByMediaTypeId(int id, [FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var tracks = await _chinookSupervisor.GetTrackByMediaTypeId(id);
+            var tracks = await _chinookSupervisor.GetTrackByMediaTypeId(id, pageNumber, pageSize);
 
             if (tracks.Any())
             {
+                var metadata = new
+                {
+                    tracks.TotalCount,
+                    tracks.PageSize,
+                    tracks.CurrentPage,
+                    tracks.TotalPages,
+                    tracks.HasNext,
+                    tracks.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(tracks);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Tracks Could Be Found for the Media Type");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Tracks Could Be Found for the Media Type");
         }
         catch (Exception ex)
         {
@@ -249,20 +285,28 @@ public class TrackController : ControllerBase
 
     [HttpGet("genre/{id}")]
     [Produces("application/json")]
-    public async Task<ActionResult<List<TrackApiModel>>> GetByGenreId(int id)
+    public async Task<ActionResult<PagedList<TrackApiModel>>> GetByGenreId(int id, [FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var tracks = await _chinookSupervisor.GetTrackByGenreId(id);
+            var tracks = await _chinookSupervisor.GetTrackByGenreId(id, pageNumber, pageSize);
 
             if (tracks.Any())
             {
+                var metadata = new
+                {
+                    tracks.TotalCount,
+                    tracks.PageSize,
+                    tracks.CurrentPage,
+                    tracks.TotalPages,
+                    tracks.HasNext,
+                    tracks.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(tracks);
             }
-            else
-            {
-                return StatusCode((int)HttpStatusCode.NotFound, "No Tracks Could Be Found for the Genre");
-            }
+
+            return StatusCode((int)HttpStatusCode.NotFound, "No Tracks Could Be Found for the Genre");
         }
         catch (Exception ex)
         {

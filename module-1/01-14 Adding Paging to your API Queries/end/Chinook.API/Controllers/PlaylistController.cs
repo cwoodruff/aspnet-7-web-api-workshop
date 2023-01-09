@@ -1,5 +1,7 @@
 ﻿using System.Net;
+using System.Text.Json;
 using Chinook.Domain.ApiModels;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
@@ -24,14 +26,24 @@ public class PlaylistController : ControllerBase
 
     [HttpGet]
     [Produces("application/json")]
-    public async Task<ActionResult<List<PlaylistApiModel>>> Get()
+    public async Task<ActionResult<PagedList<PlaylistApiModel>>> Get([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var playlists = await _chinookSupervisor.GetAllPlaylist();
+            var playlists = await _chinookSupervisor.GetAllPlaylist(pageNumber, pageSize);
 
             if (playlists.Any())
             {
+                var metadata = new
+                {
+                    playlists.TotalCount,
+                    playlists.PageSize,
+                    playlists.CurrentPage,
+                    playlists.TotalPages,
+                    playlists.HasNext,
+                    playlists.HasPrevious
+                };
+                Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(metadata));
                 return Ok(playlists);
             }
             else
@@ -146,29 +158,4 @@ public class PlaylistController : ControllerBase
                 "Error occurred while executing Get Playlist By Id");
         }
     }
-
-    // [HttpGet("track/{id}")]
-    // [Produces("application/json")]
-    // public async Task<ActionResult<List<PlaylistApiModel>>> GetByTrackId(int id)
-    // {
-    //     try
-    //     {
-    //         var playlists = await _chinookSupervisor.GetPlaylistByTrackId(id);
-    //
-    //         if (playlists.Any())
-    //         {
-    //             return Ok(playlists);
-    //         }
-    //         else
-    //         {
-    //             return StatusCode((int)HttpStatusCode.NotFound, "No Playlists Could Be Found for the Track");
-    //         }
-    //     }
-    //     catch (Exception ex)
-    //     {
-    //         _logger.LogError($"Something went wrong inside the PlaylistController GetByTrackId action: {ex}");
-    //         return StatusCode((int)HttpStatusCode.InternalServerError,
-    //             "Error occurred while executing Get All Playlists for Track");
-    //     }
-    // }
 }

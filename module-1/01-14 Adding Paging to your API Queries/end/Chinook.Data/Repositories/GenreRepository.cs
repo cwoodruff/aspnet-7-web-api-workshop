@@ -1,5 +1,6 @@
 ﻿using Chinook.Data.Data;
 using Chinook.Domain.Entities;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,8 +20,10 @@ public class GenreRepository : IGenreRepository
 
     public void Dispose() => _context.Dispose();
 
-    public async Task<List<Genre>> GetAll() =>
-        await _context.Genres.AsNoTrackingWithIdentityResolution().ToListAsync();
+    public async Task<PagedList<Genre>> GetAll(int pageNumber, int pageSize) =>
+        await PagedList<Genre>.ToPagedListAsync(_context.Set<Genre>().AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
 
     public async Task<Genre> GetById(int id)
     {

@@ -1,10 +1,11 @@
 ﻿using Chinook.Domain.Entities;
+using Chinook.Domain.Extensions;
 
 namespace Chinook.Domain.Repositories;
 
 public interface IEmployeeRepository : IDisposable
 {
-    Task<List<Employee>> GetAll();
+    Task<PagedList<Employee>> GetAll(int pageNumber, int pageSize);
     Task<Employee> GetById(int id);
     Task<Employee> GetReportsTo(int id);
     Task<Employee> Add(Employee newEmployee);

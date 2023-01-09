@@ -1,5 +1,6 @@
 ﻿using Chinook.Data.Data;
 using Chinook.Domain.Entities;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,8 +20,10 @@ public class TrackRepository : ITrackRepository
 
     public void Dispose() => _context.Dispose();
 
-    public async Task<List<Track>> GetAll() =>
-        await _context.Tracks.AsNoTrackingWithIdentityResolution().ToListAsync();
+    public async Task<PagedList<Track>> GetAll(int pageNumber, int pageSize) =>
+        await PagedList<Track>.ToPagedListAsync(_context.Set<Track>().AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
 
     public async Task<Track> GetById(int id) =>
         await _context.Tracks.FindAsync(id);
@@ -51,23 +54,39 @@ public class TrackRepository : ITrackRepository
         return true;
     }
 
-    public async Task<List<Track>> GetByAlbumId(int id) =>
-        await _context.Tracks.Where(a => a.AlbumId == id).AsNoTrackingWithIdentityResolution().ToListAsync();
-
-    public async Task<List<Track>> GetByGenreId(int id) =>
-        await _context.Tracks.Where(a => a.GenreId == id).AsNoTrackingWithIdentityResolution().ToListAsync();
-
-    public async Task<List<Track>> GetByMediaTypeId(int id) =>
-        await _context.Tracks.Where(a => a.MediaTypeId == id).AsNoTrackingWithIdentityResolution().ToListAsync();
-
-    public async Task<List<Track>> GetByPlaylistId(int id) =>
-        await _context.Playlists.Where(p => p.Id == id).SelectMany(p => p.Tracks)
-            .AsNoTrackingWithIdentityResolution().ToListAsync();
-
-    public async Task<List<Track>> GetByArtistId(int id) =>
-        await _context.Albums.Where(a => a.ArtistId == 5).SelectMany(t => t.Tracks).AsNoTrackingWithIdentityResolution().ToListAsync();
-
-    public async Task<List<Track>> GetByInvoiceId(int id) => await _context.Tracks
-        .Where(c => c.InvoiceLines.Any(o => o.InvoiceId == id))
-        .AsNoTrackingWithIdentityResolution().ToListAsync();
+    public async Task<PagedList<Track>?> GetByAlbumId(int id, int pageNumber, int pageSize) =>
+        await PagedList<Track>.ToPagedListAsync(_context.Tracks.Where(a => a.AlbumId == id)
+                .AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
+    
+    public async Task<PagedList<Track>> GetByGenreId(int id, int pageNumber, int pageSize) =>
+        await PagedList<Track>.ToPagedListAsync(_context.Tracks.Where(a => a.GenreId == id)
+                .AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
+    
+    public async Task<PagedList<Track>> GetByMediaTypeId(int id, int pageNumber, int pageSize) =>
+        await PagedList<Track>.ToPagedListAsync(_context.Tracks.Where(a => a.MediaTypeId == id)
+                .AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
+    
+    public async Task<PagedList<Track>> GetByPlaylistId(int id, int pageNumber, int pageSize) =>
+        await PagedList<Track>.ToPagedListAsync(_context.Playlists.Where(p => p.Id == id).SelectMany(p => p.Tracks)
+                .AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
+    
+    public async Task<PagedList<Track>> GetByArtistId(int id, int pageNumber, int pageSize) =>
+        await PagedList<Track>.ToPagedListAsync(_context.Albums.Where(a => a.ArtistId == id).SelectMany(t => t.Tracks)
+                .AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
+    
+    public async Task<PagedList<Track>> GetByInvoiceId(int id, int pageNumber, int pageSize) =>
+        await PagedList<Track>.ToPagedListAsync(_context.Tracks.Where(c => c.InvoiceLines.Any(o => o.InvoiceId == id))
+                .AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
 }

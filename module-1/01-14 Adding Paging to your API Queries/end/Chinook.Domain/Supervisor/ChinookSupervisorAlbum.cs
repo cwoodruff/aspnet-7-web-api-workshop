@@ -1,5 +1,4 @@
 using Chinook.Domain.ApiModels;
-using Chinook.Domain.Entities;
 using Chinook.Domain.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
@@ -8,10 +7,10 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<IEnumerable<AlbumApiModel>> GetAllAlbum()
+    public async Task<PagedList<AlbumApiModel>> GetAllAlbum(int pageNumber, int pageSize) // todo
     {
-        List<Album> albums = await _albumRepository.GetAll();
-        var albumApiModels = albums.ConvertAll();
+        var albums = await _albumRepository.GetAll(pageNumber, pageSize);
+        var albumApiModels = albums.ConvertAll<AlbumApiModel>();
 
         foreach (var album in albumApiModels)
         {
@@ -22,7 +21,8 @@ public partial class ChinookSupervisor
             _cache.Set(string.Concat("Album-", album.Id), album, (TimeSpan)cacheEntryOptions);
         }
 
-        return albumApiModels;
+        var newPagedList = new PagedList<AlbumApiModel>(albumApiModels.ToList(), albums.TotalCount, albums.CurrentPage, albums.PageSize);
+        return newPagedList;
     }
 
     public async Task<AlbumApiModel?> GetAlbumById(int id)
@@ -41,7 +41,7 @@ public partial class ChinookSupervisor
             var result = (_artistRepository.GetById(album.ArtistId)).Result;
             if (result != null)
                 albumApiModel.ArtistName = result.Name;
-            albumApiModel.Tracks = (await GetTrackByAlbumId(id) ?? Array.Empty<TrackApiModel>()).ToList();
+            //albumApiModel.Tracks = (await GetTrackByAlbumId(id) ?? Array.Empty<TrackApiModel>()).ToList();
 
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
@@ -53,10 +53,12 @@ public partial class ChinookSupervisor
         }
     }
 
-    public async Task<IEnumerable<AlbumApiModel>> GetAlbumByArtistId(int id)
+    public async Task<PagedList<AlbumApiModel>> GetAlbumByArtistId(int id, int pageNumber, int pageSize)
     {
-        var albums = await _albumRepository.GetByArtistId(id);
-        return albums.ConvertAll();
+        var albums = await _albumRepository.GetByArtistId(id, pageNumber, pageSize);
+        var albumApiModels = albums.ConvertAll<AlbumApiModel>();
+        var newPagedList = new PagedList<AlbumApiModel>(albumApiModels.ToList(), albums.TotalCount, albums.CurrentPage, albums.PageSize);
+        return newPagedList;
     }
 
     public async Task<AlbumApiModel> AddAlbum(AlbumApiModel newAlbumApiModel)

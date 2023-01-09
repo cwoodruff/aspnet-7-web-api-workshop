@@ -1,5 +1,4 @@
 using Chinook.Domain.ApiModels;
-using Chinook.Domain.Entities;
 using Chinook.Domain.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
@@ -8,9 +7,9 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<IEnumerable<GenreApiModel>> GetAllGenre()
+    public async Task<PagedList<GenreApiModel>> GetAllGenre(int pageNumber, int pageSize)
     {
-        List<Genre> genres = await _genreRepository.GetAll();
+        var genres = await _genreRepository.GetAll(pageNumber, pageSize);
         var genreApiModels = genres.ConvertAll();
 
         foreach (var genre in genreApiModels)
@@ -21,8 +20,8 @@ public partial class ChinookSupervisor
             ;
             _cache.Set(string.Concat("Genre-", genre.Id), genre, (TimeSpan)cacheEntryOptions);
         }
-
-        return genreApiModels;
+        var newPagedList = new PagedList<GenreApiModel>(genreApiModels.ToList(), genres.TotalCount, genres.CurrentPage, genres.PageSize);
+        return newPagedList;
     }
 
     public async Task<GenreApiModel?> GetGenreById(int id)
@@ -38,7 +37,7 @@ public partial class ChinookSupervisor
             var genre = await _genreRepository.GetById(id);
             if (genre == null) return null;
             var genreApiModel = genre.Convert();
-            genreApiModel.Tracks = (await GetTrackByGenreId(genreApiModel.Id)).ToList();
+            //genreApiModel.Tracks = (await GetTrackByGenreId(genreApiModel.Id)).ToList();
 
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))

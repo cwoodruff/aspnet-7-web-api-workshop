@@ -1,5 +1,4 @@
 using Chinook.Domain.ApiModels;
-using Chinook.Domain.Entities;
 using Chinook.Domain.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
@@ -8,9 +7,9 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<IEnumerable<ArtistApiModel>> GetAllArtist()
+    public async Task<PagedList<ArtistApiModel>> GetAllArtist(int pageNumber, int pageSize)
     {
-        List<Artist> artists = await _artistRepository.GetAll();
+        var artists = await _artistRepository.GetAll(pageNumber, pageSize);
         var artistApiModels = artists.ConvertAll();
 
         foreach (var artist in artistApiModels)
@@ -21,8 +20,8 @@ public partial class ChinookSupervisor
             ;
             _cache.Set(string.Concat("Artist-", artist.Id), artist, (TimeSpan)cacheEntryOptions);
         }
-
-        return artistApiModels;
+        var newPagedList = new PagedList<ArtistApiModel>(artistApiModels.ToList(), artists.TotalCount, artists.CurrentPage, artists.PageSize);
+        return newPagedList;
     }
 
     public async Task<ArtistApiModel> GetArtistById(int id)
@@ -38,7 +37,7 @@ public partial class ChinookSupervisor
             var artist = await _artistRepository.GetById(id);
             if (artist == null) return null!;
             var artistApiModel = artist.Convert();
-            artistApiModel.Albums = (await _albumRepository.GetByArtistId(artist.Id)).ConvertAll().ToList();
+            //artistApiModel.Albums = (await _albumRepository.GetByArtistId(artist.Id)).ConvertAll().ToList();
 
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))

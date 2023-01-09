@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using Chinook.Domain.ApiModels;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
 using Microsoft.AspNetCore.Cors;
@@ -24,11 +25,11 @@ public class ArtistController : ControllerBase
 
     [HttpGet]
     [Produces("application/json")]
-    public async Task<ActionResult<List<ArtistApiModel>>> Get()
+    public async Task<ActionResult<PagedList<ArtistApiModel>>> Get([FromQuery] int pageNumber, [FromQuery] int pageSize)
     {
         try
         {
-            var artists = await _chinookSupervisor.GetAllArtist();
+            var artists = await _chinookSupervisor.GetAllArtist(pageNumber, pageSize);
 
             if (artists.Any())
             {

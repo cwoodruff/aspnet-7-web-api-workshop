@@ -1,5 +1,6 @@
 ﻿using Chinook.Data.Data;
 using Chinook.Domain.Entities;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,8 +20,10 @@ public class MediaTypeRepository : IMediaTypeRepository
 
     public void Dispose() => _context.Dispose();
 
-    public async Task<List<MediaType>> GetAll() =>
-        await _context.MediaTypes.AsNoTrackingWithIdentityResolution().ToListAsync();
+    public async Task<PagedList<MediaType>> GetAll(int pageNumber, int pageSize) =>
+        await PagedList<MediaType>.ToPagedListAsync(_context.Set<MediaType>().AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
 
     public async Task<MediaType> GetById(int id) =>
         await _context.MediaTypes.FindAsync(id);

@@ -1,5 +1,4 @@
 using Chinook.Domain.ApiModels;
-using Chinook.Domain.Entities;
 using Chinook.Domain.Extensions;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Memory;
@@ -8,9 +7,9 @@ namespace Chinook.Domain.Supervisor;
 
 public partial class ChinookSupervisor
 {
-    public async Task<IEnumerable<PlaylistApiModel>> GetAllPlaylist()
+    public async Task<PagedList<PlaylistApiModel>> GetAllPlaylist(int pageNumber, int pageSize)
     {
-        List<Playlist> playlists = await _playlistRepository.GetAll();
+        var playlists = await _playlistRepository.GetAll(pageNumber, pageSize);
         var playlistApiModels = playlists.ConvertAll();
 
         foreach (var playList in playlistApiModels)
@@ -21,8 +20,8 @@ public partial class ChinookSupervisor
             ;
             _cache.Set(string.Concat("Playlist-", playList.Id), playList, (TimeSpan)cacheEntryOptions);
         }
-
-        return playlistApiModels;
+        var newPagedList = new PagedList<PlaylistApiModel>(playlistApiModels.ToList(), playlists.TotalCount, playlists.CurrentPage, playlists.PageSize);
+        return newPagedList;
     }
 
     public async Task<PlaylistApiModel> GetPlaylistById(int id)
@@ -38,7 +37,7 @@ public partial class ChinookSupervisor
             var playlist = await _playlistRepository.GetById(id);
             if (playlist == null) return null!;
             var playlistApiModel = playlist.Convert();
-            playlistApiModel.Tracks = (await GetTrackByMediaTypeId(playlistApiModel.Id)).ToList();
+            //playlistApiModel.Tracks = (await GetTrackByMediaTypeId(playlistApiModel.Id)).ToList();
 
             var cacheEntryOptions =
                 new MemoryCacheEntryOptions().SetSlidingExpiration(TimeSpan.FromSeconds(604800))
@@ -77,10 +76,4 @@ public partial class ChinookSupervisor
 
     public Task<bool> DeletePlaylist(int id)
         => _playlistRepository.Delete(id);
-
-    // public async Task<IEnumerable<PlaylistApiModel>> GetPlaylistByTrackId(int id)
-    // {
-    //     var playlists = await _playlistRepository.GetByTrackId(id);
-    //     return playlists.ConvertAll();
-    // }
 }

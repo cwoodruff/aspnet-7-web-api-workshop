@@ -1,5 +1,6 @@
 ﻿using Chinook.Data.Data;
 using Chinook.Domain.Entities;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,7 +20,10 @@ public class AlbumRepository : IAlbumRepository
 
     public void Dispose() => _context.Dispose();
 
-    public async Task<List<Album>> GetAll() => await _context.Albums.AsNoTrackingWithIdentityResolution().ToListAsync();
+    public async Task<PagedList<Album>> GetAll(int pageNumber, int pageSize) =>
+        await PagedList<Album>.ToPagedListAsync(_context.Set<Album>().AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
 
     public async Task<Album> GetById(int id)
     {
@@ -53,6 +57,9 @@ public class AlbumRepository : IAlbumRepository
         return true;
     }
 
-    public async Task<List<Album>> GetByArtistId(int id) =>
-        await _context.Albums.Where(a => a.ArtistId == id).AsNoTrackingWithIdentityResolution().ToListAsync();
+    public async Task<PagedList<Album>> GetByArtistId(int id, int pageNumber, int pageSize) =>
+        await PagedList<Album>.ToPagedListAsync(_context.Albums.Where(a => a.ArtistId == id)
+                .AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
 }

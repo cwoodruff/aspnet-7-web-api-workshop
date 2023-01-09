@@ -1,5 +1,6 @@
 ﻿using Chinook.Data.Data;
 using Chinook.Domain.Entities;
+using Chinook.Domain.Extensions;
 using Chinook.Domain.Repositories;
 using Microsoft.EntityFrameworkCore;
 
@@ -19,8 +20,10 @@ public class InvoiceLineRepository : IInvoiceLineRepository
 
     public void Dispose() => _context.Dispose();
 
-    public async Task<List<InvoiceLine>> GetAll() =>
-        await _context.InvoiceLines.AsNoTrackingWithIdentityResolution().ToListAsync();
+    public async Task<PagedList<InvoiceLine>> GetAll(int pageNumber, int pageSize) =>
+        await PagedList<InvoiceLine>.ToPagedListAsync(_context.Set<InvoiceLine>().AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
 
     public async Task<InvoiceLine> GetById(int id) =>
         await _context.InvoiceLines.FindAsync(id);
@@ -51,9 +54,15 @@ public class InvoiceLineRepository : IInvoiceLineRepository
         return true;
     }
 
-    public async Task<List<InvoiceLine>> GetByInvoiceId(int id) =>
-        await _context.InvoiceLines.Where(a => a.InvoiceId == id).AsNoTrackingWithIdentityResolution().ToListAsync();
+    public async Task<PagedList<InvoiceLine>> GetByInvoiceId(int id, int pageNumber, int pageSize) =>
+        await PagedList<InvoiceLine>.ToPagedListAsync(_context.InvoiceLines.Where(a => a.InvoiceId == id)
+                .AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
 
-    public async Task<List<InvoiceLine>> GetByTrackId(int id) =>
-        await _context.InvoiceLines.Where(a => a.TrackId == id).AsNoTrackingWithIdentityResolution().ToListAsync();
+    public async Task<PagedList<InvoiceLine>> GetByTrackId(int id, int pageNumber, int pageSize) =>
+        await PagedList<InvoiceLine>.ToPagedListAsync(_context.InvoiceLines.Where(a => a.TrackId == id)
+                .AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
 }
