@@ -5,6 +5,14 @@ author: cwoodruff
 ---
 # Consuming ASP.NET Web API with OpenAPI Document
 
+## INSTALL .NET OPENAPI TOOL
+
+Microsoft.dotnet-openapi is a .NET Core Global Tool for managing OpenAPI references within a project.
+
+```csharp
+dotnet tool install -g Microsoft.dotnet-openapi
+```
+
 ## CREATE NEW CONSOLE PROJECT
 
 ```dos
