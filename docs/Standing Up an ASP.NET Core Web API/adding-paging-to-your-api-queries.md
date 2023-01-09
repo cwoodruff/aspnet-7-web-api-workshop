@@ -8,6 +8,12 @@ author: cwoodruff
 ## START FROM PREVIOUS MODULE'S END
 [Using the PATCH HTTP Request in your API](using-patch-request.md)
 
+## Add Microsoft.EntityFrameworkCore NUGET PACKAGE TO DOMAIN PROJECT
+
+```dos
+dotnet add package Microsoft.EntityFrameworkCore
+```
+
 ## ADD PAGEDLIST CLASS TO YOUR DOMAIN PROJECT
 
 ```csharp
@@ -49,91 +55,70 @@ public class PagedList<T> : List<T>
 ## UPDATE DATA REPOSITORY INTERFACES IN DOMAIN PROJECT
 
 ```csharp
-public interface IRepository<T> where T : BaseEntity
+public interface IAlbumRepository : IDisposable
 {
-    Task<bool> EntityExists(int id);
-    Task<PagedList<T>> GetAll(int pageNumber, int pageSize);
-    Task<T?> GetById(int id);
-    Task<T> Add(T entity);
-    Task<bool> Update(T entity);
-    Task<bool> Delete(int id);
-}
-```
-
-```csharp
-public interface IAlbumRepository : IRepository<Album>, IDisposable
-{
+    Task<PagedList<Album>> GetAll(int pageNumber, int pageSize);
+    Task<Album> GetById(int id);
     Task<PagedList<Album>> GetByArtistId(int id, int pageNumber, int pageSize);
-}
-```
-
-## UPDATE BASEREPOSITORY IN DATA PROJECT
-
-```csharp
-public class BaseRepository<T> : IRepository<T> where T : BaseEntity
-{
-    protected ChinookContext _context;
-
-    protected BaseRepository(ChinookContext context)
-    {
-        _context = context;
-    }
-
-    public async Task<bool> EntityExists(int id) =>
-        await _context.Set<T>().AnyAsync(a => a.Id == id);
-
-    public async Task<PagedList<T>> GetAll(int pageNumber, int pageSize) =>
-        await PagedList<T>.ToPagedListAsync(_context.Set<T>().AsNoTrackingWithIdentityResolution(),
-            pageNumber,
-            pageSize);
-
-    public async Task<T> GetById(int id) => await _context.Set<T>().SingleAsync(e => e.Id == id);
-
-    public async Task<T> Add(T entity)
-    {
-        await _context.Set<T>().AddAsync(entity);
-        await _context.SaveChangesAsync();
-        return entity;
-    }
-
-    public async Task<bool> Update(T entity)
-    {
-        if (!await EntityExists(entity.Id))
-            return false;
-        _context.Set<T>().Update(entity);
-        await _context.SaveChangesAsync();
-        return true;
-    }
-
-    public async Task<bool> Delete(int id)
-    {
-        if (!await EntityExists(id))
-            return false;
-        var toRemove = await _context.Set<T>().FindAsync(id);
-        _context.Set<T>().Remove(toRemove);
-        await _context.SaveChangesAsync();
-        return true;
-    }
-    
-    public IQueryable<T> GetByCondition(Expression<Func<T, bool>> expression)
-    {
-        return _context.Set<T>()
-            .Where(expression)
-            .AsNoTrackingWithIdentityResolution();
-    }
+    Task<Album> Add(Album newAlbum);
+    Task<bool> Update(Album album);
+    Task<bool> Delete(int id);
 }
 ```
 
 ## UPDATE DATA REPOSITORIES IN DATA PROJECT
 
 ```csharp
-public class AlbumRepository : BaseRepository<Album>, IAlbumRepository, IDisposable
+public class AlbumRepository : IAlbumRepository
 {
-    public AlbumRepository(ChinookContext context) : base(context)
+    private readonly ChinookContext _context;
+
+    public AlbumRepository(ChinookContext context)
     {
+        _context = context;
     }
 
+    private async Task<bool> AlbumExists(int id) =>
+        await _context.Albums.AnyAsync(a => a.Id == id);
+
     public void Dispose() => _context.Dispose();
+
+    public async Task<PagedList<Album>> GetAll(int pageNumber, int pageSize) =>
+        await PagedList<Album>.ToPagedListAsync(_context.Set<Album>().AsNoTrackingWithIdentityResolution(),
+            pageNumber,
+            pageSize);
+
+    public async Task<Album> GetById(int id)
+    {
+        var dbAlbum = await _context.Albums.FindAsync(id);
+        return dbAlbum;
+    }
+
+    public async Task<Album> Add(Album newAlbum)
+    {
+        await _context.Albums.AddAsync(newAlbum);
+        await _context.SaveChangesAsync();
+        return newAlbum;
+    }
+
+    public async Task<bool> Update(Album album)
+    {
+        if (!await AlbumExists(album.Id))
+            return false;
+        _context.Albums.Update(album);
+        await _context.SaveChangesAsync();
+        return true;
+    }
+
+    public async Task<bool> Delete(int id)
+    {
+        if (!await AlbumExists(id))
+            return false;
+        var toRemove = await _context.Albums.FindAsync(id);
+        _context.Albums.Remove(toRemove);
+        await _context.SaveChangesAsync();
+        return true;
+    }
 
     public async Task<PagedList<Album>> GetByArtistId(int id, int pageNumber, int pageSize) =>
         await PagedList<Album>.ToPagedListAsync(_context.Albums.Where(a => a.ArtistId == id)
@@ -143,7 +128,7 @@ public class AlbumRepository : BaseRepository<Album>, IAlbumRepository, IDisposa
 }
 ```
 
-## UPDATE ISUPERVISOR IN DOMAIN PROJECT
+## UPDATE ICHINOOKSUPERVISOR IN DOMAIN PROJECT
 
 ```csharp
 public interface IChinookSupervisor
@@ -216,7 +201,7 @@ public interface IChinookSupervisor
 }
 ```
 
-## UPDATE SUPERVISOR PARTIAL CLASS FILES IN DOMAIN PROJECT
+## UPDATE CHINOOKSUPERVISOR PARTIAL CLASS FILES IN DOMAIN PROJECT
 
 ```csharp
 public partial class ChinookSupervisor
