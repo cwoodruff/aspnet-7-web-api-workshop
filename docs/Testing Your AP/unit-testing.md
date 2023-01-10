@@ -5,7 +5,7 @@ author: cwoodruff
 ---
 # Creating and using Unit Testing for your API
 
-## OPEN SOLUTION IN THE TESTING MODULE FOR UNIT TESTING
+## OPEN SOLUTION (BEFORE PAGING MODULE) IN THE TESTING MODULE FOR UNIT TESTING
 
 \aspnet-7-web-api-workshop\module-2\02-01 Creating and using Unit Testing for your Web API\testing
 

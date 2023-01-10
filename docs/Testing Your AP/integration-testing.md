@@ -5,7 +5,7 @@ author: cwoodruff
 ---
 # Creating and using Integrating Testing for your API
 
-## OPEN SOLUTION IN THE TESTING MODULE FOR INTEGRATION TESTING
+## OPEN SOLUTION (BEFORE PAGING MODULE) IN THE TESTING MODULE FOR INTEGRATION TESTING
 
 \aspnet-7-web-api-workshop\module-2\02-02 Creating and using Integrating Testing for your Web API\testing
 
