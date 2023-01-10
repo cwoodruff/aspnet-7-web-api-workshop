@@ -2,6 +2,7 @@
 using Chinook.Domain.ApiModels;
 using Chinook.Domain.Supervisor;
 using FluentValidation;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,6 +11,7 @@ namespace Chinook.API.Controllers;
 [Route("api/[controller]")]
 [ApiController]
 [EnableCors("CorsPolicy")]
+[Authorize]
 public class EmployeeController : ControllerBase
 {
     private readonly IChinookSupervisor _chinookSupervisor;
