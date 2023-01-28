@@ -350,3 +350,5 @@ MigrationBackup/
 .ionide/
 *.html
 *.png
+
+site/
