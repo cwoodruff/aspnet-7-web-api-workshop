@@ -5,9 +5,8 @@ author: cwoodruff
 ---
 # Required Technologies for the Workshop
 
-| Tech          | Where to download                                                           |
+| Tech          | Where to download                                                          |
 | ------------- | --------------------------------------------------------------------------- |
-| .NET 7        | [Download](https://dotnet.microsoft.com/download/dotnet)                    |
+| .NET 7        | [Download](https://dotnet.microsoft.com/download/dotnet)                   |
 | SQL Server    | [Download](https://www.microsoft.com/en-us/sql-server/sql-server-downloads) |
-| Azure Account (optional) | [Create Account](https://azure.microsoft.com/en-us/free/)        |
-| Postman       | [Download](https://www.postman.com/downloads/)                              |
+| Postman       | [Download](https://www.postman.com/downloads/)                             |

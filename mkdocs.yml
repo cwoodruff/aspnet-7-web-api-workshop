@@ -20,7 +20,6 @@ nav:
         - Required Technology: required-tech.md
         - Installing ASP.NET 7: installing-aspnet-7.md
         - Installing SQL Server: installing-mssql.md
-        - Setting up Azure SQL: setting-up-azure-sql.md
         - Installing Postman: installing-postman.md
     - Standing up a Web API:
         - What is a Web API?: Standing Up an ASP.NET Core Web API/what-is-a-web-api.md
@@ -34,11 +33,6 @@ nav:
         - Identity in your Web API: Standing Up an ASP.NET Core Web API/identity.md
         - Versioning your Web API: Standing Up an ASP.NET Core Web API/versioning.md
         - Documenting your API with OpenAPI: Standing Up an ASP.NET Core Web API/documenting-with-openapi.md
-        - Formatting Reponse Data in your API: Standing Up an ASP.NET Core Web API/formatting-response-data.md
-        - Using the PATCH HTTP Request in your API: Standing Up an ASP.NET Core Web API/using-patch-request.md
-        - Adding Paging to your API Queries: Standing Up an ASP.NET Core Web API/adding-paging-to-your-api-queries.md
-        - Using Hypermedia in your API Responses: Standing Up an ASP.NET Core Web API/using-hypermedia-in-your-api-responses.md
-        - Rate Limiting your API: Standing Up an ASP.NET Core Web API/rate-limiting-your-api.md
     - Testing Your API:
         - Creating and using Unit Testing for your API: Testing Your AP/unit-testing.md
         - Creating and using Integrating Testing for your API: Testing Your AP/integration-testing.md
@@ -46,6 +40,12 @@ nav:
         - Consuming ASP.NET Web API in .NET: Consuming ASP.NET Web API/consuming-web-api-in-dotnet.md
         - Consuming ASP.NET Web API with OpenAPI Document: Consuming ASP.NET Web API/consuming-web-api-with-openapi.md
         - Consuming ASP.NET Web API in Javascript: Consuming ASP.NET Web API/consuming-web-api-in-javascript.md
+    - Beyond the Workshop:
+        - Formatting Reponse Data in your API: Beyond the Workshop/formatting-response-data.md
+        - Using the PATCH HTTP Request in your API: Beyond the Workshop/using-patch-request.md
+        - Adding Paging to your API Queries: Beyond the Workshop/adding-paging-to-your-api-queries.md
+        - Using Hypermedia in your API Responses: Beyond the Workshop/using-hypermedia-in-your-api-responses.md
+        - Rate Limiting your API: Beyond the Workshop/rate-limiting-your-api.md
     
 plugins:
     - search
@@ -55,7 +55,7 @@ plugins:
 theme:
   name: null
   
-  custom_dir: cinder
+  custom_dir: material
   colorscheme: github
   highlightjs: true
 
@@ -77,6 +77,7 @@ theme:
   features:
     - navigation.sections
     - navigation.tabs
+    - content.tabs.link
   logo: https://github.com/cwoodruff/aspnet-7-web-api-workshop/blob/main/rest-api.png?raw=true
   favicon: https://github.com/cwoodruff/aspnet-7-web-api-workshop/blob/main/rest-api.ico
 
@@ -132,3 +133,6 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true

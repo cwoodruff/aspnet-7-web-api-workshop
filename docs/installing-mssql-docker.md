@@ -5,16 +5,35 @@ author: cwoodruff
 ---
 # Installing and Setting Up SQL Server 2019 in Docker
 
-Go to the <a href="https://www.microsoft.com/en-us/sql-server/sql-server-downloads" target="_blank">Try SQL Server 2019</a> page and download the Developer version. Install locally.
+=== "macOS"
 
-![](images/mssql-2019-dev-download.png)
+    ``` c
+    #include <stdio.h>
 
-# Creating the Chinook database in MSSQL 2019
+    int main(void) {
+      printf("Hello world!\n");
+      return 0;
+    }
+    ```
 
-Get the <a href="https://github.com/cwoodruff/aspnet-5-web-api-workshop/blob/main/module-1/01-05%20Developing%20Data%20Access%20for%20your%20Web%20API/database/Chinook.bak" target="_blank">Chinook database</a> for this workshop in the GitHub repo. The file is a BAK backup so we will restore it to where you have MSSQL 2019 installed.
+=== "Linux"
 
-It contains all data for the workshop and will be the starting point for the learning.
+    ``` c++
+    #include <iostream>
 
-Use SQL Server Management Studio to restore the database. 
+    int main(void) {
+      std::cout << "Hello world!" << std::endl;
+      return 0;
+    }
+    ```
+    
+=== "Windows"
 
-![](images/MSSMS-Restore-DB.png)
+    ``` c++
+    #include <iostream>
+
+    int main(void) {
+      std::cout << "Hello world!" << std::endl;
+      return 0;
+    }
+    ```
