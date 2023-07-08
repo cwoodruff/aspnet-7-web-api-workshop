@@ -20,6 +20,7 @@ nav:
         - Required Technology: required-tech.md
         - Installing ASP.NET 7: installing-aspnet-7.md
         - Installing SQL Server: installing-mssql.md
+        - Installing SQL Server with Docker: installing-mssql-docker.md
         - Installing Postman: installing-postman.md
     - Standing up a Web API:
         - What is a Web API?: Standing Up an ASP.NET Core Web API/what-is-a-web-api.md
@@ -41,6 +42,7 @@ nav:
         - Consuming ASP.NET Web API with OpenAPI Document: Consuming ASP.NET Web API/consuming-web-api-with-openapi.md
         - Consuming ASP.NET Web API in Javascript: Consuming ASP.NET Web API/consuming-web-api-in-javascript.md
     - Beyond the Workshop:
+        - Identity in your Web API: Beyond the Workshop/identity.md
         - Formatting Reponse Data in your API: Beyond the Workshop/formatting-response-data.md
         - Using the PATCH HTTP Request in your API: Beyond the Workshop/using-patch-request.md
         - Adding Paging to your API Queries: Beyond the Workshop/adding-paging-to-your-api-queries.md
@@ -55,7 +57,7 @@ plugins:
 theme:
   name: null
   
-  custom_dir: material
+  custom_dir: cinder
   colorscheme: github
   highlightjs: true
 
@@ -136,3 +138,5 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.tabbed:
       alternate_style: true
+  - attr_list
+  - md_in_html
